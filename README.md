@@ -1,1 +1,1 @@
-"# askida-kod" 
+# Askıda Kod
