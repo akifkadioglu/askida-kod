@@ -17,12 +17,18 @@ type User struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// ActivationID holds the value of the "activation_id" field.
+	ActivationID uuid.UUID `json:"activation_id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Picture holds the value of the "picture" field.
-	Picture *string `json:"picture,omitempty"`
+	Picture string `json:"picture,omitempty"`
 	// Email holds the value of the "email" field.
-	Email        string `json:"email,omitempty"`
+	Email string `json:"email,omitempty"`
+	// IsActive holds the value of the "is_active" field.
+	IsActive bool `json:"is_active,omitempty"`
+	// Password holds the value of the "password" field.
+	Password     string `json:"-"`
 	selectValues sql.SelectValues
 }
 
@@ -31,9 +37,11 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldName, user.FieldPicture, user.FieldEmail:
+		case user.FieldIsActive:
+			values[i] = new(sql.NullBool)
+		case user.FieldName, user.FieldPicture, user.FieldEmail, user.FieldPassword:
 			values[i] = new(sql.NullString)
-		case user.FieldID:
+		case user.FieldID, user.FieldActivationID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -56,6 +64,12 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				u.ID = *value
 			}
+		case user.FieldActivationID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field activation_id", values[i])
+			} else if value != nil {
+				u.ActivationID = *value
+			}
 		case user.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
@@ -66,14 +80,25 @@ func (u *User) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field picture", values[i])
 			} else if value.Valid {
-				u.Picture = new(string)
-				*u.Picture = value.String
+				u.Picture = value.String
 			}
 		case user.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
 				u.Email = value.String
+			}
+		case user.FieldIsActive:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_active", values[i])
+			} else if value.Valid {
+				u.IsActive = value.Bool
+			}
+		case user.FieldPassword:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field password", values[i])
+			} else if value.Valid {
+				u.Password = value.String
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -111,16 +136,22 @@ func (u *User) String() string {
 	var builder strings.Builder
 	builder.WriteString("User(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", u.ID))
+	builder.WriteString("activation_id=")
+	builder.WriteString(fmt.Sprintf("%v", u.ActivationID))
+	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(u.Name)
 	builder.WriteString(", ")
-	if v := u.Picture; v != nil {
-		builder.WriteString("picture=")
-		builder.WriteString(*v)
-	}
+	builder.WriteString("picture=")
+	builder.WriteString(u.Picture)
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(u.Email)
+	builder.WriteString(", ")
+	builder.WriteString("is_active=")
+	builder.WriteString(fmt.Sprintf("%v", u.IsActive))
+	builder.WriteString(", ")
+	builder.WriteString("password=<sensitive>")
 	builder.WriteByte(')')
 	return builder.String()
 }

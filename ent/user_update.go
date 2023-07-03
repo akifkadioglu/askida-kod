@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/akifkadioglu/askida-kod/ent/predicate"
 	"github.com/akifkadioglu/askida-kod/ent/user"
+	"github.com/google/uuid"
 )
 
 // UserUpdate is the builder for updating User entities.
@@ -27,6 +28,20 @@ func (uu *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
 	return uu
 }
 
+// SetActivationID sets the "activation_id" field.
+func (uu *UserUpdate) SetActivationID(u uuid.UUID) *UserUpdate {
+	uu.mutation.SetActivationID(u)
+	return uu
+}
+
+// SetNillableActivationID sets the "activation_id" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableActivationID(u *uuid.UUID) *UserUpdate {
+	if u != nil {
+		uu.SetActivationID(*u)
+	}
+	return uu
+}
+
 // SetName sets the "name" field.
 func (uu *UserUpdate) SetName(s string) *UserUpdate {
 	uu.mutation.SetName(s)
@@ -39,9 +54,57 @@ func (uu *UserUpdate) SetPicture(s string) *UserUpdate {
 	return uu
 }
 
+// SetNillablePicture sets the "picture" field if the given value is not nil.
+func (uu *UserUpdate) SetNillablePicture(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetPicture(*s)
+	}
+	return uu
+}
+
+// ClearPicture clears the value of the "picture" field.
+func (uu *UserUpdate) ClearPicture() *UserUpdate {
+	uu.mutation.ClearPicture()
+	return uu
+}
+
 // SetEmail sets the "email" field.
 func (uu *UserUpdate) SetEmail(s string) *UserUpdate {
 	uu.mutation.SetEmail(s)
+	return uu
+}
+
+// SetIsActive sets the "is_active" field.
+func (uu *UserUpdate) SetIsActive(b bool) *UserUpdate {
+	uu.mutation.SetIsActive(b)
+	return uu
+}
+
+// SetNillableIsActive sets the "is_active" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableIsActive(b *bool) *UserUpdate {
+	if b != nil {
+		uu.SetIsActive(*b)
+	}
+	return uu
+}
+
+// SetPassword sets the "password" field.
+func (uu *UserUpdate) SetPassword(s string) *UserUpdate {
+	uu.mutation.SetPassword(s)
+	return uu
+}
+
+// SetNillablePassword sets the "password" field if the given value is not nil.
+func (uu *UserUpdate) SetNillablePassword(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetPassword(*s)
+	}
+	return uu
+}
+
+// ClearPassword clears the value of the "password" field.
+func (uu *UserUpdate) ClearPassword() *UserUpdate {
+	uu.mutation.ClearPassword()
 	return uu
 }
 
@@ -86,14 +149,29 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := uu.mutation.ActivationID(); ok {
+		_spec.SetField(user.FieldActivationID, field.TypeUUID, value)
+	}
 	if value, ok := uu.mutation.Name(); ok {
 		_spec.SetField(user.FieldName, field.TypeString, value)
 	}
 	if value, ok := uu.mutation.Picture(); ok {
 		_spec.SetField(user.FieldPicture, field.TypeString, value)
 	}
+	if uu.mutation.PictureCleared() {
+		_spec.ClearField(user.FieldPicture, field.TypeString)
+	}
 	if value, ok := uu.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
+	}
+	if value, ok := uu.mutation.IsActive(); ok {
+		_spec.SetField(user.FieldIsActive, field.TypeBool, value)
+	}
+	if value, ok := uu.mutation.Password(); ok {
+		_spec.SetField(user.FieldPassword, field.TypeString, value)
+	}
+	if uu.mutation.PasswordCleared() {
+		_spec.ClearField(user.FieldPassword, field.TypeString)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -115,6 +193,20 @@ type UserUpdateOne struct {
 	mutation *UserMutation
 }
 
+// SetActivationID sets the "activation_id" field.
+func (uuo *UserUpdateOne) SetActivationID(u uuid.UUID) *UserUpdateOne {
+	uuo.mutation.SetActivationID(u)
+	return uuo
+}
+
+// SetNillableActivationID sets the "activation_id" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableActivationID(u *uuid.UUID) *UserUpdateOne {
+	if u != nil {
+		uuo.SetActivationID(*u)
+	}
+	return uuo
+}
+
 // SetName sets the "name" field.
 func (uuo *UserUpdateOne) SetName(s string) *UserUpdateOne {
 	uuo.mutation.SetName(s)
@@ -127,9 +219,57 @@ func (uuo *UserUpdateOne) SetPicture(s string) *UserUpdateOne {
 	return uuo
 }
 
+// SetNillablePicture sets the "picture" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillablePicture(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetPicture(*s)
+	}
+	return uuo
+}
+
+// ClearPicture clears the value of the "picture" field.
+func (uuo *UserUpdateOne) ClearPicture() *UserUpdateOne {
+	uuo.mutation.ClearPicture()
+	return uuo
+}
+
 // SetEmail sets the "email" field.
 func (uuo *UserUpdateOne) SetEmail(s string) *UserUpdateOne {
 	uuo.mutation.SetEmail(s)
+	return uuo
+}
+
+// SetIsActive sets the "is_active" field.
+func (uuo *UserUpdateOne) SetIsActive(b bool) *UserUpdateOne {
+	uuo.mutation.SetIsActive(b)
+	return uuo
+}
+
+// SetNillableIsActive sets the "is_active" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableIsActive(b *bool) *UserUpdateOne {
+	if b != nil {
+		uuo.SetIsActive(*b)
+	}
+	return uuo
+}
+
+// SetPassword sets the "password" field.
+func (uuo *UserUpdateOne) SetPassword(s string) *UserUpdateOne {
+	uuo.mutation.SetPassword(s)
+	return uuo
+}
+
+// SetNillablePassword sets the "password" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillablePassword(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetPassword(*s)
+	}
+	return uuo
+}
+
+// ClearPassword clears the value of the "password" field.
+func (uuo *UserUpdateOne) ClearPassword() *UserUpdateOne {
+	uuo.mutation.ClearPassword()
 	return uuo
 }
 
@@ -204,14 +344,29 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			}
 		}
 	}
+	if value, ok := uuo.mutation.ActivationID(); ok {
+		_spec.SetField(user.FieldActivationID, field.TypeUUID, value)
+	}
 	if value, ok := uuo.mutation.Name(); ok {
 		_spec.SetField(user.FieldName, field.TypeString, value)
 	}
 	if value, ok := uuo.mutation.Picture(); ok {
 		_spec.SetField(user.FieldPicture, field.TypeString, value)
 	}
+	if uuo.mutation.PictureCleared() {
+		_spec.ClearField(user.FieldPicture, field.TypeString)
+	}
 	if value, ok := uuo.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.IsActive(); ok {
+		_spec.SetField(user.FieldIsActive, field.TypeBool, value)
+	}
+	if value, ok := uuo.mutation.Password(); ok {
+		_spec.SetField(user.FieldPassword, field.TypeString, value)
+	}
+	if uuo.mutation.PasswordCleared() {
+		_spec.ClearField(user.FieldPassword, field.TypeString)
 	}
 	_node = &User{config: uuo.config}
 	_spec.Assign = _node.assignValues

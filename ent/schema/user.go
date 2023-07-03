@@ -16,10 +16,17 @@ func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
 			Default(uuid.New),
+		field.UUID("activation_id", uuid.UUID{}).
+			Default(uuid.New),
 		field.String("name"),
 		field.String("picture").
-			Nillable(),
+			Optional(),
 		field.String("email"),
+		field.Bool("is_active").
+			Default(false),
+		field.String("password").
+			Optional().
+			Sensitive(),
 	}
 }
 

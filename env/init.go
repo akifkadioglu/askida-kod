@@ -17,18 +17,34 @@ const (
 	DB_PASSWORD     = "DB_PASSWORD"
 	DB_EXTERNAL_URL = "DB_EXTERNAL_URL"
 
+	MAIL_MAILER       = ""
+	MAIL_HOST         = ""
+	MAIL_PORT         = ""
+	MAIL_USERNAME     = ""
+	MAIL_PASSWORD     = ""
+	MAIL_ENCRYPTION   = ""
+	MAIL_FROM_ADDRESS = ""
+	MAIL_FROM_NAME    = ""
+
+	CLIENT_ID     = "CLIENT_ID"
+	CLIENT_SECRET = "CLIENT_SECRET"
+
 	APP_KEY = "APP_KEY"
 )
 
 const (
 	LOCAL int = iota
 	PROD
+	TEST
 )
 
 func InitEnv(t int) {
 	var err error
 
 	switch t {
+	case TEST:
+		err = godotenv.Load(filepath.Join("./../env", ".env"))
+
 	case LOCAL:
 		err = godotenv.Load(filepath.Join("./env", ".env"))
 

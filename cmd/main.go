@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/akifkadioglu/askida-kod/database"
 	"github.com/akifkadioglu/askida-kod/env"
 	"github.com/akifkadioglu/askida-kod/route"
@@ -11,5 +13,7 @@ func main() {
 	env.InitEnv(env.LOCAL)
 	database.Connection()
 	utils.InitTokenAuth()
-	route.InitServices()
+	s := route.CreateNewServer()
+	s.MountHandlers()
+	http.ListenAndServe(":10000", s.Router)
 }

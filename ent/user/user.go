@@ -12,12 +12,18 @@ const (
 	Label = "user"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldActivationID holds the string denoting the activation_id field in the database.
+	FieldActivationID = "activation_id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
 	// FieldPicture holds the string denoting the picture field in the database.
 	FieldPicture = "picture"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
+	// FieldIsActive holds the string denoting the is_active field in the database.
+	FieldIsActive = "is_active"
+	// FieldPassword holds the string denoting the password field in the database.
+	FieldPassword = "password"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 )
@@ -25,9 +31,12 @@ const (
 // Columns holds all SQL columns for user fields.
 var Columns = []string{
 	FieldID,
+	FieldActivationID,
 	FieldName,
 	FieldPicture,
 	FieldEmail,
+	FieldIsActive,
+	FieldPassword,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -41,6 +50,10 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultActivationID holds the default value on creation for the "activation_id" field.
+	DefaultActivationID func() uuid.UUID
+	// DefaultIsActive holds the default value on creation for the "is_active" field.
+	DefaultIsActive bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -51,6 +64,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByActivationID orders the results by the activation_id field.
+func ByActivationID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldActivationID, opts...).ToFunc()
 }
 
 // ByName orders the results by the name field.
@@ -66,4 +84,14 @@ func ByPicture(opts ...sql.OrderTermOption) OrderOption {
 // ByEmail orders the results by the email field.
 func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByIsActive orders the results by the is_active field.
+func ByIsActive(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsActive, opts...).ToFunc()
+}
+
+// ByPassword orders the results by the password field.
+func ByPassword(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPassword, opts...).ToFunc()
 }

@@ -20,6 +20,20 @@ type UserCreate struct {
 	hooks    []Hook
 }
 
+// SetActivationID sets the "activation_id" field.
+func (uc *UserCreate) SetActivationID(u uuid.UUID) *UserCreate {
+	uc.mutation.SetActivationID(u)
+	return uc
+}
+
+// SetNillableActivationID sets the "activation_id" field if the given value is not nil.
+func (uc *UserCreate) SetNillableActivationID(u *uuid.UUID) *UserCreate {
+	if u != nil {
+		uc.SetActivationID(*u)
+	}
+	return uc
+}
+
 // SetName sets the "name" field.
 func (uc *UserCreate) SetName(s string) *UserCreate {
 	uc.mutation.SetName(s)
@@ -32,9 +46,45 @@ func (uc *UserCreate) SetPicture(s string) *UserCreate {
 	return uc
 }
 
+// SetNillablePicture sets the "picture" field if the given value is not nil.
+func (uc *UserCreate) SetNillablePicture(s *string) *UserCreate {
+	if s != nil {
+		uc.SetPicture(*s)
+	}
+	return uc
+}
+
 // SetEmail sets the "email" field.
 func (uc *UserCreate) SetEmail(s string) *UserCreate {
 	uc.mutation.SetEmail(s)
+	return uc
+}
+
+// SetIsActive sets the "is_active" field.
+func (uc *UserCreate) SetIsActive(b bool) *UserCreate {
+	uc.mutation.SetIsActive(b)
+	return uc
+}
+
+// SetNillableIsActive sets the "is_active" field if the given value is not nil.
+func (uc *UserCreate) SetNillableIsActive(b *bool) *UserCreate {
+	if b != nil {
+		uc.SetIsActive(*b)
+	}
+	return uc
+}
+
+// SetPassword sets the "password" field.
+func (uc *UserCreate) SetPassword(s string) *UserCreate {
+	uc.mutation.SetPassword(s)
+	return uc
+}
+
+// SetNillablePassword sets the "password" field if the given value is not nil.
+func (uc *UserCreate) SetNillablePassword(s *string) *UserCreate {
+	if s != nil {
+		uc.SetPassword(*s)
+	}
 	return uc
 }
 
@@ -87,6 +137,14 @@ func (uc *UserCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (uc *UserCreate) defaults() {
+	if _, ok := uc.mutation.ActivationID(); !ok {
+		v := user.DefaultActivationID()
+		uc.mutation.SetActivationID(v)
+	}
+	if _, ok := uc.mutation.IsActive(); !ok {
+		v := user.DefaultIsActive
+		uc.mutation.SetIsActive(v)
+	}
 	if _, ok := uc.mutation.ID(); !ok {
 		v := user.DefaultID()
 		uc.mutation.SetID(v)
@@ -95,14 +153,17 @@ func (uc *UserCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (uc *UserCreate) check() error {
+	if _, ok := uc.mutation.ActivationID(); !ok {
+		return &ValidationError{Name: "activation_id", err: errors.New(`ent: missing required field "User.activation_id"`)}
+	}
 	if _, ok := uc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "User.name"`)}
 	}
-	if _, ok := uc.mutation.Picture(); !ok {
-		return &ValidationError{Name: "picture", err: errors.New(`ent: missing required field "User.picture"`)}
-	}
 	if _, ok := uc.mutation.Email(); !ok {
 		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "User.email"`)}
+	}
+	if _, ok := uc.mutation.IsActive(); !ok {
+		return &ValidationError{Name: "is_active", err: errors.New(`ent: missing required field "User.is_active"`)}
 	}
 	return nil
 }
@@ -139,17 +200,29 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := uc.mutation.ActivationID(); ok {
+		_spec.SetField(user.FieldActivationID, field.TypeUUID, value)
+		_node.ActivationID = value
+	}
 	if value, ok := uc.mutation.Name(); ok {
 		_spec.SetField(user.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
 	if value, ok := uc.mutation.Picture(); ok {
 		_spec.SetField(user.FieldPicture, field.TypeString, value)
-		_node.Picture = &value
+		_node.Picture = value
 	}
 	if value, ok := uc.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 		_node.Email = value
+	}
+	if value, ok := uc.mutation.IsActive(); ok {
+		_spec.SetField(user.FieldIsActive, field.TypeBool, value)
+		_node.IsActive = value
+	}
+	if value, ok := uc.mutation.Password(); ok {
+		_spec.SetField(user.FieldPassword, field.TypeString, value)
+		_node.Password = value
 	}
 	return _node, _spec
 }

@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"net/http"
+
 	"github.com/akifkadioglu/askida-kod/env"
 	"github.com/akifkadioglu/askida-kod/models"
 	"github.com/go-chi/jwtauth/v5"
@@ -20,4 +22,13 @@ func GenerateToken(model models.JwtModel) (string, error) {
 
 func TokenAuth() *jwtauth.JWTAuth {
 	return _tokenAuth
+}
+
+func GetUser(r *http.Request) models.JwtModel {
+	_, claims, _ := jwtauth.FromContext(r.Context())
+
+	var user models.JwtModel
+	MapToStruct(claims, &user)
+
+	return user
 }
