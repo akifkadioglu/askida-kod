@@ -11,8 +11,10 @@ import (
 	"github.com/akifkadioglu/askida-kod/resources/emails"
 	"github.com/akifkadioglu/askida-kod/utils"
 	"github.com/akifkadioglu/askida-kod/variables"
+	"github.com/google/uuid"
 
 	"github.com/dghubble/gologin/v2/google"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
 
@@ -53,8 +55,6 @@ func GoogleLogin(w http.ResponseWriter, r *http.Request) {
 	JWTModel.Time = time.Now().String()
 
 	tokenAsString, _ := utils.GenerateToken(JWTModel)
-
-	w.Header().Add("Authorization", "Bearer "+tokenAsString)
 	http.Redirect(w, r, variables.CLIENT+"/token/"+tokenAsString, http.StatusMovedPermanently)
 }
 
@@ -93,7 +93,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		}
 
 		utils.SendEmail(newUser.Email, "Register", emails.Register(newUser.Name, newUser.ActivationID.String()))
-
 		render.JSON(w, r, utils.JSONMessage("The user created"))
 
 	} else {
@@ -112,7 +111,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, utils.JSONMessage("E-mail and Password are required"))
 		return
 	}
-	user, err := db.User.
+
+	userByEmail, err := db.User.
 		Query().
 		Where(user.Email(input.Email)).
 		First(r.Context())
@@ -123,11 +123,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if utils.CompareHash(user.Password, input.Password) {
-		JWTModel.Email = user.Email
-		JWTModel.ID = user.ID.String()
-		JWTModel.Name = user.Name
-		JWTModel.Picture = &user.Picture
+	if !userByEmail.IsActive {
+		w.WriteHeader(http.StatusUnauthorized)
+		render.JSON(w, r, utils.JSONMessage("You have to be active user first"))
+		return
+	}
+
+	if utils.CompareHash(userByEmail.Password, input.Password) {
+		JWTModel.Email = userByEmail.Email
+		JWTModel.ID = userByEmail.ID.String()
+		JWTModel.Name = userByEmail.Name
+		JWTModel.Picture = &userByEmail.Picture
 		JWTModel.Time = time.Now().String()
 
 		token, err := utils.GenerateToken(JWTModel)
@@ -150,30 +156,46 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func SendEmailAgain(w http.ResponseWriter, r *http.Request) {
-	var input BodySendEmailAgain
+func MakeActive(w http.ResponseWriter, r *http.Request) {
+	activationID := chi.URLParam(r, "activation_id")
 	db := database.DBManager()
+	var JWTModel models.JwtModel
 
-	if err := render.DecodeJSON(r.Body, &input); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		render.JSON(w, r, utils.JSONMessage("E-mail is required"))
-		return
-	}
-
-	user, _ := db.User.
-		Query().
-		Where(user.Email(input.Email)).
-		First(r.Context())
-
-	err := utils.SendEmail(user.Email, "Register", emails.Register(user.Name, user.ActivationID.String()))
+	activationIdAsUuid, err := uuid.Parse(activationID)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		render.JSON(w, r, utils.JSONMessage("Something went wrong"))
 		return
-
-	} else {
-		render.JSON(w, r, utils.JSONMessage("sent"))
-		return
 	}
+
+	userByActivationID, err := db.User.
+		Query().
+		Where(user.ActivationID(activationIdAsUuid)).
+		First(r.Context())
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, utils.JSONMessage("There is no user"))
+	}
+
+	updatedUser, err := db.User.
+		UpdateOne(userByActivationID).
+		SetIsActive(true).
+		Save(r.Context())
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, utils.JSONMessage("Something went wrong"))
+	}
+
+	JWTModel.Email = updatedUser.Email
+	JWTModel.ID = updatedUser.ID.String()
+	JWTModel.Name = updatedUser.Name
+	JWTModel.Picture = &updatedUser.Picture
+	JWTModel.Time = time.Now().String()
+
+	tokenAsString, _ := utils.GenerateToken(JWTModel)
+
+	http.Redirect(w, r, variables.CLIENT+"/token/"+tokenAsString, http.StatusMovedPermanently)
 }

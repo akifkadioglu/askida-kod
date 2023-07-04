@@ -15,7 +15,7 @@ func TestAuth(t *testing.T) {
 
 	t.Run("Register", func(t *testing.T) {
 		body := setBodyForTest(auth.BodyRegister{
-			Email:    "akifkadioglu@gmail.com",
+			Email:    "akif.kadioglu.28@gmail.com",
 			Name:     "Akif",
 			Password: "abc",
 		})
@@ -26,7 +26,7 @@ func TestAuth(t *testing.T) {
 
 	t.Run("Login", func(t *testing.T) {
 		body := setBodyForTest(auth.BodyLogin{
-			Email:    "akifkadioglu@gmail.com",
+			Email:    "akif.kadioglu.28@gmail.com",
 			Password: "abc",
 		})
 		req, _ := http.NewRequest("POST", "/api/public/login", body)

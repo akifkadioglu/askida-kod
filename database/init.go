@@ -12,7 +12,7 @@ type MySQL struct{}
 type SQLite struct{}
 
 func Connection() {
-	var database MySQL
+	var database PostgreSQL
 	database.connect()
 }
 

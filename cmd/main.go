@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	env.InitEnv(env.LOCAL)
+	env.InitEnv(env.PROD)
 	database.Connection()
 	utils.InitTokenAuth()
 	s := route.CreateNewServer()

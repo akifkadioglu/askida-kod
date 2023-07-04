@@ -20,7 +20,6 @@ func Register(name, activationID string) string {
 			Name:     name,
 			Intros: []string{
 				"Welcome to our app",
-				variables.API + "/activate-user/" + activationID,
 			},
 			Actions: []hermes.Action{
 				{
@@ -28,14 +27,13 @@ func Register(name, activationID string) string {
 					Button: hermes.Button{
 						Color: "#357EC7",
 						Text:  "Confirm your account",
-						Link:  variables.API + "/activate-user/" + activationID,
+						Link:  variables.API + "/api/public/users/" + activationID,
 					},
 				},
 			},
 			Outros: []string{
 				"Need help, or have questions? Just reply to this email, we'd love to help.",
 			},
-			Signature: variables.APP_NAME,
 		},
 	}
 	emailBody, _ := h.GenerateHTML(email)

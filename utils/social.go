@@ -16,7 +16,7 @@ func InitGoogleConfigs() *oauth2.Config {
 	return &oauth2.Config{
 		ClientID:     googleConfig.ClientID,
 		ClientSecret: googleConfig.ClientSecret,
-		RedirectURL:  variables.CLIENT + "/api/public/google/callback",
+		RedirectURL:  variables.API + "/api/public/google/callback",
 		Endpoint:     googleOAuth2.Endpoint,
 		Scopes:       []string{"profile", "email"},
 	}
